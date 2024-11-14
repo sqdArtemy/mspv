@@ -11,7 +11,8 @@ model.load_state_dict(torch.load("./model/model.pth", weights_only=True))
 model.eval()
 
 transform = transforms.Compose([
-    transforms.ToTensor()
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 overlay = tk.Tk()
@@ -81,6 +82,7 @@ def analyze_gameplay():
     update_overlay(predicted_class)
 
     overlay.after(1000, analyze_gameplay)
+
 
 overlay.after(1000, analyze_gameplay)
 overlay.mainloop()

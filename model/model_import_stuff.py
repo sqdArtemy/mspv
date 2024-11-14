@@ -1,12 +1,10 @@
 import os
 import pandas as pd
 from PIL import Image
-from torch.utils.data import Dataset, DataLoader
-import torch
+from torch.utils.data import Dataset
 import torch.nn as nn
-import torch.optim as optim
 from torchvision import models, transforms
-from torchvision.models import ResNet18_Weights
+from torchvision.models import ResNet34_Weights
 from sklearn.preprocessing import LabelEncoder
 
 decisions_file_path = "./data/decisions.csv"
@@ -49,9 +47,14 @@ class AssistantDataset(Dataset):
 class AssistantClassifier(nn.Module):
     def __init__(self, num_classes):
         super(AssistantClassifier, self).__init__()
-        self.cnn = models.resnet18(weights=ResNet18_Weights.DEFAULT)
+
+        self.cnn = models.resnet34(weights=ResNet34_Weights.DEFAULT)
+
         for param in list(self.cnn.parameters())[:6]:
+            param.requires_grad = False
+        for param in list(self.cnn.parameters())[6:]:
             param.requires_grad = True
+
         self.cnn.fc = nn.Identity()
 
         self.fc = nn.ModuleDict({

@@ -3,3 +3,4 @@ data/raw_images/
 data/compressed_images/
 .venv
 static/screenshot.png
+model/*.png
