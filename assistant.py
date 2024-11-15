@@ -1,23 +1,31 @@
+import os
 import pyautogui
 import torch
 from PIL import Image
 from torchvision import transforms
 import tkinter as tk
-from model.model_import_stuff import AssistantClassifier, num_classes, ds
+from model.model_import_stuff import num_classes, ds, HeartsInHandClassifier, ImageContextClassifier
 from data.data_import_stuff import compress_image
 
-model = AssistantClassifier(num_classes=num_classes)
-model.load_state_dict(torch.load("./model/model.pth", weights_only=True))
-model.eval()
+# Initialize the models
+hearts_item_model = HeartsInHandClassifier(hearts_classes=num_classes["hearts"], in_hand_classes=num_classes["in_hand_item"])
+hearts_item_model.load_state_dict(torch.load("./model/hearts_model.pth", weights_only=True))
+hearts_item_model.eval()
+
+context_model = ImageContextClassifier(num_classes=num_classes)
+context_model.load_state_dict(torch.load("./model/context_model.pth", weights_only=True))
+context_model.eval()
+
 
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
+
+# Create overlay window for displaying predictions
 overlay = tk.Tk()
 overlay.overrideredirect(True)
-
 overlay.attributes("-topmost", True)
 overlay.wm_attributes("-transparentcolor", "white")
 overlay.configure(bg='white')
@@ -50,12 +58,30 @@ for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", 
     labels[feature] = label
 
 
-def update_overlay(result):
+def process_screenshot(screenshot_path: str, hearts_output_folder: str, in_hand_output_folder: str) -> None:
+    os.makedirs(hearts_output_folder, exist_ok=True)
+    os.makedirs(in_hand_output_folder, exist_ok=True)
+
+    heart_region_coords = (215, 370, 400, 420)
+    in_hand_region_coords = (200, 410, 600, 450)
+
+    image = Image.open(screenshot_path).convert('RGB')
+
+    heart_region = image.crop(heart_region_coords)
+    heart_filename = os.path.join(hearts_output_folder, "hearts.png")
+    heart_region.save(heart_filename)
+
+    in_hand_region = image.crop(in_hand_region_coords)
+    in_hand_filename = os.path.join(in_hand_output_folder, "toolbar.png")
+    in_hand_region.save(in_hand_filename)
+
+
+def update_overlay(result: dict) -> None:
     labels["activity"].config(text=f"Action: {result['activity'].item()}")
     labels["hearts"].config(text=f"Hearts: {result['hearts'].item()}")
-    labels["light_lvl"].config(text=f"Light Level: {result['light_lvl'].item()}")
-    labels["in_hand_item"].config(text=f"In-hand Item: {result['in_hand_item'].item()}")
-    labels["target_mob"].config(text=f"Target Mob: {result['target_mob'].item()}")
+    labels["light_lvl"].config(text=f"Light lvl: {result['light_lvl'].item()}")
+    labels["in_hand_item"].config(text=f"Item: {result['in_hand_item'].item()}")
+    labels["target_mob"].config(text=f"Mob: {result['target_mob'].item()}")
 
     overlay.update_idletasks()
 
@@ -64,20 +90,33 @@ def update_overlay(result):
     overlay.geometry(f"{width}x{height}+10+10")
 
 
-def analyze_gameplay():
+def analyze_gameplay() -> None:
     screenshot = pyautogui.screenshot()
     screenshot.save("./static/screenshot.png")
+
+    # Compress image if needed
     compress_image("static/screenshot.png", "static/screenshot.png")
+    process_screenshot("./static/screenshot.png", "./static", "./static")
 
     image = Image.open("static/screenshot.png")
     image = transform(image).unsqueeze(0)
 
+    heart_image = Image.open("static/hearts.png")
+    heart_image = transform(heart_image).unsqueeze(0)
+
+    toolbar_image = Image.open("static/toolbar.png")
+    toolbar_image = transform(toolbar_image).unsqueeze(0)
+
     with torch.no_grad():
-        output = model(image)
+        hearts_output = hearts_item_model(heart_image, toolbar_image)
+        context_out = context_model(image)
+        output = {**context_out, **hearts_output}
+
         features = ["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]
         predicted_class = {
             feature: ds.label_encoders[feature].inverse_transform(output[feature].argmax(dim=1).cpu().detach().numpy())
-            for feature in features}
+            for feature in features
+        }
 
     update_overlay(predicted_class)
 
