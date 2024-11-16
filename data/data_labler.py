@@ -17,7 +17,7 @@ decision_hearts_options = ["", "give_regeneration_1", "give_regeneration_2", "gi
 decision_activity_options = ["", "give_resistance", "give_jump_boost", "give_strength", "give_haste", "give_water_breathing", "give_speed"]
 
 
-def open_image(image_path):
+def open_image(image_path: str) -> None:
     image = Image.open(image_path)
     image.thumbnail((500, 500))
     img = ImageTk.PhotoImage(image)
@@ -25,7 +25,7 @@ def open_image(image_path):
     img_label.image = img
 
 
-def update_excel():
+def update_excel() -> None:
     # Get values from dropdowns
     screenshot_title = os.path.basename(image_paths[img_idx])
     activity = activity_var.get()
@@ -58,7 +58,7 @@ def update_excel():
     next_image()
 
 
-def next_image():
+def next_image() -> None:
     global img_idx
     img_idx += 1
     if img_idx < len(image_paths):

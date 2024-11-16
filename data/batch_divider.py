@@ -2,7 +2,7 @@ import os
 import shutil
 
 
-def divide_screenshots(source_dir, destination_dir):
+def divide_screenshots(source_dir: str, destination_dir: str) -> None:
     files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
     files.sort()
 

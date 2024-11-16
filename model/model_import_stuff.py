@@ -35,7 +35,7 @@ class AssistantDataset(Dataset):
     def __len__(self) -> int:
         return len(self.labels)
 
-    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, dict]:
         image_path = os.path.join(self.images_dir, self.labels.iloc[index, 0])
         image = Image.open(image_path).convert('RGB')
 
