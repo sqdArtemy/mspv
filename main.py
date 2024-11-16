@@ -1,5 +1,7 @@
 import pyautogui
 import torch
+import joblib
+import pandas as pd
 
 from PIL import Image, ImageTk
 from torchvision import transforms
@@ -18,6 +20,8 @@ context_model = ImageContextClassifier(num_classes=num_classes)
 context_model.load_state_dict(torch.load("./model/context_model.pth", weights_only=True))
 context_model.eval()
 
+decisions_model = joblib.load("./model/decisions_model.pkl")
+
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -32,11 +36,16 @@ overlay.attributes("-topmost", True)
 overlay.wm_attributes("-transparentcolor", "white")
 overlay.configure(bg='white')
 
+overlay_width = 220
+overlay_height = 1080
+overlay.geometry(f"{overlay_width}x{overlay_height}")
+
 canvas = tk.Canvas(overlay, bg="white", highlightthickness=0)
 canvas.pack(fill="both", expand=True)
 
 icons = {}
 labels = {}
+decision_labels = {}
 icon_items = {}
 
 for feature, path in icon_paths.items():
@@ -44,8 +53,13 @@ for feature, path in icon_paths.items():
     resized_icon = original_icon.resize((28, 28), Image.Resampling.LANCZOS)
     icons[feature] = ImageTk.PhotoImage(resized_icon)
 
+
+# Rectangles for extracted features
+extracted_feature_height = 50  # Height of each feature rectangle
+start_y_position = 10  # Starting Y position for extracted feature rectangles
+
 for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]):
-    y_position = 10 + i * 50
+    y_position = start_y_position + i * extracted_feature_height
     rounded_rect = draw_rounded_rect(
         10, y_position,
         200, y_position + 40,
@@ -64,11 +78,34 @@ for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", 
     icon_items[feature] = icon_item
 
 
+# Rectangles for decisions
+decision_start_y_position = start_y_position + (len(["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]) * extracted_feature_height) + 190
+decision_title_rect = draw_rounded_rect(
+    10, decision_start_y_position - 20,
+    200, decision_start_y_position + 20,
+    fill="#e8f0fe", outline="#c0c8d4", width=2, canvas=canvas
+)
+decision_title_label = tk.Label(canvas, text="Suggested decisions:", font=("BLOXAT", 10, "bold"), bg="#e8f0fe", anchor="w")
+decision_title_label.place(x=20, y=decision_start_y_position-20)
+
+
+for i, feature in enumerate(["activity", "light", "hearts", "mob"]):
+    y_position = decision_start_y_position + (i * extracted_feature_height)
+    decision_rect = draw_rounded_rect(
+        10, y_position,
+        200, y_position + 40,
+        fill="#ffcc00", outline="#c0c8d4", width=2, canvas=canvas
+    )
+
+    decision_label = tk.Label(canvas, text="", font=("BLOXAT", 10), bg="#ffcc00", anchor="w", justify="left")
+    decision_label.place(x=20, y=y_position + 10)
+    decision_labels[feature] = decision_label
+
+
 def analyze_gameplay() -> None:
     screenshot = pyautogui.screenshot()
     screenshot.save("./static/screenshot.png")
 
-    # Compress image if needed
     compress_image("static/screenshot.png", "static/screenshot.png")
     process_screenshot("./static/screenshot.png", "./static", "./static")
 
@@ -92,7 +129,17 @@ def analyze_gameplay() -> None:
             for feature in features
         }
 
-    update_overlay(result=predicted_class, icon_items=icon_items, labels=labels, canvas=canvas, overlay=overlay)
+        predicted_features = {key: value.item() for key, value in predicted_class.items()}
+        predicted_features_df = pd.DataFrame([predicted_features])
+
+        try:
+            decisions = decisions_model.predict(predicted_features_df)[0]
+        except Exception as e:
+            decisions = [f"Error: {e}"] * 4
+
+
+    update_overlay(result=predicted_class, icon_items=icon_items, labels=labels, canvas=canvas, overlay=overlay,
+                   decision_labels=decision_labels, decisions=decisions)
     overlay.after(1000, analyze_gameplay)
 
 
