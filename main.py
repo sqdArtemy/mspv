@@ -83,12 +83,12 @@ for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", 
 # Rectangles for decisions
 decision_start_y_position = start_y_position + (len(["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]) * extracted_feature_height) + 190
 decision_title_rect = draw_rounded_rect(
-    10, decision_start_y_position - 20,
+    10, decision_start_y_position - 40,
     BOX_WIDTH, decision_start_y_position + 20,
     fill="#e8f0fe", outline="#c0c8d4", width=2, canvas=canvas
 )
 decision_title_label = tk.Label(canvas, text="Suggested decisions:", font=("BLOXAT", 10, "bold"), bg="#e8f0fe", anchor="w")
-decision_title_label.place(x=20, y=decision_start_y_position-20)
+decision_title_label.place(x=20, y=decision_start_y_position-30)
 
 
 for i, feature in enumerate(["activity", "light", "hearts", "mob"]):

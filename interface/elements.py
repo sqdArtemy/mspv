@@ -57,7 +57,7 @@ def update_overlay(result: dict, labels: dict, icon_items: dict, canvas, overlay
     mob_icon = load_icon(mob_type)
     canvas.itemconfig(icon_items["target_mob"], image=mob_icon)
 
-    # Update icons references for future use
+    # Just to prevent objs to be collected by garbage collector
     icon_items["activity_ref"] = activity_icon
     icon_items["light_ref"] = light_icon
     icon_items["item_ref"] = item_icon
