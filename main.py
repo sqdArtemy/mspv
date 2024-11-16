@@ -11,6 +11,8 @@ from data.data_import_stuff import compress_image, process_screenshot
 from interface.constants import icon_paths
 from interface.elements import draw_rounded_rect, update_overlay
 
+BOX_WIDTH = 270
+
 # Initialize the models
 hearts_item_model = HeartsInHandClassifier(hearts_classes=num_classes["hearts"], in_hand_classes=num_classes["in_hand_item"])
 hearts_item_model.load_state_dict(torch.load("./model/hearts_model.pth", weights_only=True))
@@ -55,14 +57,14 @@ for feature, path in icon_paths.items():
 
 
 # Rectangles for extracted features
-extracted_feature_height = 50  # Height of each feature rectangle
-start_y_position = 10  # Starting Y position for extracted feature rectangles
+extracted_feature_height = 50
+start_y_position = 10
 
 for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]):
     y_position = start_y_position + i * extracted_feature_height
     rounded_rect = draw_rounded_rect(
         10, y_position,
-        200, y_position + 40,
+        BOX_WIDTH, y_position + 40,
         fill="#f0f4f8",
         outline="#c0c8d4",
         width=2, canvas=canvas
@@ -72,7 +74,7 @@ for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", 
     label.place(x=20, y=y_position + 10)
     labels[feature] = label
 
-    icon_x_position = 175
+    icon_x_position = BOX_WIDTH - 20
     icon_y_position = y_position + 20
     icon_item = canvas.create_image(icon_x_position, icon_y_position, image=icons["hearts"], anchor="center")
     icon_items[feature] = icon_item
@@ -82,7 +84,7 @@ for i, feature in enumerate(["activity", "hearts", "light_lvl", "in_hand_item", 
 decision_start_y_position = start_y_position + (len(["activity", "hearts", "light_lvl", "in_hand_item", "target_mob"]) * extracted_feature_height) + 190
 decision_title_rect = draw_rounded_rect(
     10, decision_start_y_position - 20,
-    200, decision_start_y_position + 20,
+    BOX_WIDTH, decision_start_y_position + 20,
     fill="#e8f0fe", outline="#c0c8d4", width=2, canvas=canvas
 )
 decision_title_label = tk.Label(canvas, text="Suggested decisions:", font=("BLOXAT", 10, "bold"), bg="#e8f0fe", anchor="w")
@@ -93,11 +95,11 @@ for i, feature in enumerate(["activity", "light", "hearts", "mob"]):
     y_position = decision_start_y_position + (i * extracted_feature_height)
     decision_rect = draw_rounded_rect(
         10, y_position,
-        200, y_position + 40,
-        fill="#ffcc00", outline="#c0c8d4", width=2, canvas=canvas
+        BOX_WIDTH, y_position + 40,
+        fill="#67ab6a", outline="#c0c8d4", width=2, canvas=canvas
     )
 
-    decision_label = tk.Label(canvas, text="", font=("BLOXAT", 10), bg="#ffcc00", anchor="w", justify="left")
+    decision_label = tk.Label(canvas, text="", font=("BLOXAT", 10), bg="#67ab6a", anchor="w", justify="left")
     decision_label.place(x=20, y=y_position + 10)
     decision_labels[feature] = decision_label
 
@@ -137,9 +139,15 @@ def analyze_gameplay() -> None:
         except Exception as e:
             decisions = [f"Error: {e}"] * 4
 
-
-    update_overlay(result=predicted_class, icon_items=icon_items, labels=labels, canvas=canvas, overlay=overlay,
-                   decision_labels=decision_labels, decisions=decisions)
+    update_overlay(
+        result=predicted_class,
+        icon_items=icon_items,
+        labels=labels,
+        canvas=canvas,
+        overlay=overlay,
+        decision_labels=decision_labels,
+        decisions=decisions
+    )
     overlay.after(1000, analyze_gameplay)
 
 

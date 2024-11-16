@@ -35,7 +35,9 @@ def update_overlay(result: dict, labels: dict, icon_items: dict, canvas, overlay
     labels["activity"].config(text=f"Action: {result['activity'].item()}")
     labels["hearts"].config(text=f"Hearts: {result['hearts'].item()}")
     labels["light_lvl"].config(text=f"Light lvl: {result['light_lvl'].item()}")
-    labels["in_hand_item"].config(text=f"Item: {result['in_hand_item'].item()}")
+    labels["in_hand_item"].config(
+        text=f"Item: {"misc" if result['in_hand_item'].item() == 'miscellaneous' else result['in_hand_item'].item()}"
+    )
     labels["target_mob"].config(text=f"Mob: {result['target_mob'].item()}")
 
     # Update icons for extracted features
@@ -64,11 +66,12 @@ def update_overlay(result: dict, labels: dict, icon_items: dict, canvas, overlay
     # Update decisions section
     for feature, decision in zip(["activity", "hearts", "light", "mob"], decisions):
         decision_to_show = "-" if "no_decision" in decision else decision.replace('_', ' ').replace('give', '')
+        decision_to_show = "light up" if "light" in decision else decision_to_show
+        decision_to_show = decision_to_show[:13] if len(decision_to_show) > 14 else decision_to_show
         decision_labels[feature].config(text=f"{feature.capitalize()}: {decision_to_show}")
 
     overlay.update_idletasks()
 
-    # Adjust the window size based on the number of features and decisions
     total_labels = len(labels) + len(decision_labels)
     width = max(label.winfo_reqwidth() for label in labels.values()) + 200
     height = 10 + total_labels * 70
