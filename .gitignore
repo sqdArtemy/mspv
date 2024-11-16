@@ -3,4 +3,6 @@ data/raw_images/
 data/compressed_images/
 .venv
 static/screenshot.png
+static/hearts.png
+static/toolbar.png
 model/*.png
