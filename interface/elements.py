@@ -66,8 +66,8 @@ def update_overlay(result: dict, labels: dict, icon_items: dict, canvas, overlay
     # Update decisions section
     for feature, decision in zip(["activity", "hearts", "light", "mob"], decisions):
         decision_to_show = "-" if "no_decision" in decision else decision.replace('_', ' ').replace('give', '')
-        decision_to_show = "light up" if "light" in decision else decision_to_show
-        decision_to_show = decision_to_show[:13] if len(decision_to_show) > 14 else decision_to_show
+        decision_to_show = "light up" if "place" in decision else decision_to_show
+        decision_to_show = decision_to_show[:13] if len(decision_to_show) > 16 else decision_to_show
         decision_labels[feature].config(text=f"{feature.capitalize()}: {decision_to_show}")
 
     overlay.update_idletasks()
