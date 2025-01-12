@@ -10,6 +10,12 @@ from torchvision.models import ResNet34_Weights
 from sklearn.preprocessing import LabelEncoder
 
 
+"""
+The purpose of this file is to provide the ability to import functions to other files, which were developed in the 
+jupyter notebook. This is required to unpack the exported model into the main.py functions.
+"""
+
+
 decisions_file_path = "./data/decisions.csv"
 images_path = "./data/compressed_images"
 

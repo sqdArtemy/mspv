@@ -1,6 +1,10 @@
 import os
 import shutil
 
+"""
+This script was made in order to divide screenshots to batches, while we were manually labeling collected screenshots.
+"""
+
 
 def divide_screenshots(source_dir: str, destination_dir: str) -> None:
     files = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
@@ -19,8 +23,6 @@ def divide_screenshots(source_dir: str, destination_dir: str) -> None:
 
         for file in files[start_idx:end_idx]:
             shutil.move(os.path.join(source_dir, file), os.path.join(batch_folder, file))
-
-    print("Screenshots divided into 10 batches successfully.")
 
 
 source_directory = ".//raw_images"

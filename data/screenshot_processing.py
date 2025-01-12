@@ -2,6 +2,11 @@ import os
 
 from PIL import Image
 
+"""
+This file contains functions for compressing screenshots and extracting ROIs (Region Of Interest) from the taken 
+screenshot.
+"""
+
 
 def compress_image(image_path: str, output_path: str, max_size: tuple[int, int] = (800, 450), quality: int = 85) -> None:
     try:

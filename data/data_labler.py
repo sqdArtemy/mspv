@@ -4,6 +4,12 @@ from tkinter import Tk, Label, Button, OptionMenu, StringVar
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
+"""
+This code is basically for the script, which helped us with manual labeling of the screenshots.
+It simply selects input folder and output .xlsx file, and provides comfortable interface with drop-downs for each 
+feature.
+"""
+
 
 activity_options = ["", "archery", "building", "fighting", "mining", "swimming", "walking"]
 hearts_options = [""] + [str(i) for i in range(0, 21)]
@@ -13,8 +19,12 @@ target_mob_options = ["", "zombie", "spider", "skeleton", "creeper", "ender", "o
 
 decision_mob_options = ["", "go_back", "take_bow", "take_sword"]
 decision_light_options = ["", "palce_light_source"]
-decision_hearts_options = ["", "give_regeneration_1", "give_regeneration_2", "give_regeneration_3", "give_regeneration_4"]
-decision_activity_options = ["", "give_resistance", "give_jump_boost", "give_strength", "give_haste", "give_water_breathing", "give_speed"]
+decision_hearts_options = [
+    "", "give_regeneration_1", "give_regeneration_2", "give_regeneration_3", "give_regeneration_4"
+]
+decision_activity_options = [
+    "", "give_resistance", "give_jump_boost", "give_strength", "give_haste", "give_water_breathing", "give_speed"
+]
 
 
 def open_image(image_path: str) -> None:

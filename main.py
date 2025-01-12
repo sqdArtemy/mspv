@@ -6,8 +6,8 @@ import pandas as pd
 from PIL import Image, ImageTk
 from torchvision import transforms
 import tkinter as tk
-from model.model_import_stuff import num_classes, ds, HeartsInHandClassifier, ImageContextClassifier
-from data.data_import_stuff import compress_image, process_screenshot
+from model.model_export import num_classes, ds, HeartsInHandClassifier, ImageContextClassifier
+from data.screenshot_processing import compress_image, process_screenshot
 from interface.constants import icon_paths
 from interface.elements import draw_rounded_rect, update_overlay
 
