@@ -5,6 +5,8 @@ Welcome to **MSPV**, an open-source repository providing code of the implementat
 > **MSPV: A Modular Simulation-to-Real Pipeline for Cost-Effective AI Hypothesis Validation**  
 > by *Artyom Tashyan, Saidjon Khaydar-Zade, Pavel Tin*
 
+**Paper can be accessed by that link:** https://doi.org/10.36227/techrxiv.174002528.84035428/v1
+
 ### Graph of model`s structure:
 
 ![Architecture](./static/graphs/architecture.png)
